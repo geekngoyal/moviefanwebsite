@@ -3,9 +3,9 @@ var router = express.Router();
 const request = require('request');
 
 
-const apiKey = '1fb720b97cc13e580c2c35e1138f90f8';
-const apiBaseUrl = 'http://api.themoviedb.org/3';
-const nowPlayingUrl = `${apiBaseUrl}/movie/now_playing?api_key=${apiKey}`;
+const apiKey = '123456789';
+const apiBaseUrl = 'http://localhost:3030';
+const nowPlayingUrl = `${apiBaseUrl}/most_popular?api_key=${apiKey}`;
 const imageBaseUrl = 'http://image.tmdb.org/t/p/w300';
 
 
@@ -17,8 +17,9 @@ router.use((req, res, next) => {
 /* GET home page. */
 router.get('/', function(req, res, next) {
   request.get(nowPlayingUrl, (error, response, movieData) => {
+
    const parsedData = JSON.parse(movieData);
-    console.log(error);
+    console.log(parsedData);
    // console.log(movieData);
    res.render('index', {
     parsedData: parsedData.results
@@ -31,7 +32,7 @@ router.get('/', function(req, res, next) {
 
 router.get('/movie/:id', (req, res, next) => {
   const movieId = req.params.id;
-  const thisMovieUrl = `${apiBaseUrl}/movie/${movieId}?api_key=${apiKey}`;
+  const thisMovieUrl = `${apiBaseUrl}/movies/${movieId}?api_key=${apiKey}`;
   
   request.get(thisMovieUrl, ( request, response, movieData) => {
     const parsedData = JSON.parse(movieData);
@@ -40,6 +41,21 @@ router.get('/movie/:id', (req, res, next) => {
     })
   });
   //res.send(thisMovieUrl);
+});
+
+router.post('/search', (req, res, next) => {
+  const userSearchTerm = encodeURI(req.body.movieSearch);
+  const cat = req.body.cat;
+  const movieUrl = `${apiBaseUrl}/search/${cat}?query=${userSearchTerm}&api_key=${apiKey}`;
+  console.log(movieUrl);
+  request.get(movieUrl, (error, response, movieData) => {
+    console.log(movieData)
+    const parsedData = JSON.parse(movieData);
+    res.render('index', {
+      parsedData: parsedData.results
+    });
+  });
+  //res.send(movieUrl)
 });
 
 module.exports = router;
